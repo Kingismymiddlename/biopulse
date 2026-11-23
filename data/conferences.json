@@ -1,0 +1,138 @@
+{
+  "updated": "2026-11-23",
+  "note": "Dates checked against organizer sites or major trade press on the 'updated' date. Always confirm on the official site before booking.",
+  "events": [
+    {
+      "id": "jpm-2027",
+      "name": "J.P. Morgan Healthcare Conference",
+      "start": "2027-01-11",
+      "end": "2027-01-14",
+      "city": "San Francisco, CA",
+      "focus": ["Investors", "BD & Partnering", "Corporate Strategy"],
+      "audience": "Invitation-only investor conference. Pharma and biotech CEOs, CFOs and BD heads, investors and bankers. Most business happens in side meetings across the city.",
+      "url": "https://www.jpmorgan.com/about-us/events-conferences/health-care-conference",
+      "dateSource": "BioPharma Dive 2027 conference calendar"
+    },
+    {
+      "id": "scope-2027",
+      "name": "SCOPE Summit",
+      "start": "2027-03-01",
+      "end": "2027-03-04",
+      "city": "Orlando, FL",
+      "focus": ["Clinical Operations", "Trial Design", "Patient Recruitment"],
+      "audience": "Clinical operations, feasibility, data management and outsourcing leaders from sponsors, CROs and sites.",
+      "url": "https://www.scopesummit.com/",
+      "dateSource": "scopesummit.com"
+    },
+    {
+      "id": "gartner-da-2027",
+      "name": "Gartner Data & Analytics Summit",
+      "start": "2027-03-08",
+      "end": "2027-03-10",
+      "city": "Orlando, FL",
+      "focus": ["Data Strategy", "AI Governance", "Analytics"],
+      "audience": "Chief data and analytics officers and data leaders across industries, including pharma; technology buyers evaluating platforms and partners.",
+      "url": "https://www.gartner.com/en/conferences/na/data-analytics-us",
+      "dateSource": "gartner.com venue page and event listings"
+    },
+    {
+      "id": "aacr-2027",
+      "name": "AACR Annual Meeting",
+      "start": "2027-04-02",
+      "end": "2027-04-07",
+      "city": "Orlando, FL",
+      "focus": ["Oncology Research", "Translational Science", "Biomarkers"],
+      "audience": "Cancer researchers, translational and discovery teams from pharma and biotech, academic KOLs.",
+      "url": "https://www.aacr.org/meeting/aacr-annual-meeting-2027/",
+      "dateSource": "aacr.org"
+    },
+    {
+      "id": "himss-2027",
+      "name": "HIMSS Global Health Conference",
+      "start": "2027-04-05",
+      "end": "2027-04-08",
+      "city": "Chicago, IL",
+      "focus": ["Health IT", "Interoperability", "Digital Health"],
+      "audience": "Health system CIOs and IT teams, EHR and health tech vendors, payers, government health IT. Pharma is a minority of attendees.",
+      "url": "https://www.himssconference.com/",
+      "dateSource": "himssconference.com"
+    },
+    {
+      "id": "asgct-2027",
+      "name": "ASGCT Annual Meeting",
+      "start": "2027-05-03",
+      "end": "2027-05-07",
+      "city": "Philadelphia, PA",
+      "focus": ["Cell & Gene Therapy", "Manufacturing / CMC", "Translational Science"],
+      "audience": "Gene and cell therapy scientists, CMC and manufacturing leaders, biotech founders and investors.",
+      "url": "https://annualmeeting.asgct.org/",
+      "dateSource": "BioPharma Dive 2027 conference calendar"
+    },
+    {
+      "id": "bioit-2027",
+      "name": "Bio-IT World Conference & Expo",
+      "start": "2027-05-18",
+      "end": "2027-05-20",
+      "city": "Boston, MA",
+      "focus": ["AI/ML", "R&D Data Platforms", "Bioinformatics"],
+      "audience": "R&D IT, research computing, data science and informatics leaders from pharma and biotech, plus platform vendors.",
+      "url": "https://www.bio-itworldexpo.com/",
+      "dateSource": "Organizer listings; confirm on bio-itworldexpo.com"
+    },
+    {
+      "id": "asco-2027",
+      "name": "ASCO Annual Meeting",
+      "start": "2027-06-04",
+      "end": "2027-06-08",
+      "city": "Chicago, IL",
+      "focus": ["Oncology", "Clinical Data", "Real-World Evidence"],
+      "audience": "Oncologists, pharma medical affairs and clinical development teams, payers and patient advocates. The largest clinical oncology meeting.",
+      "url": "https://conferences.asco.org/am/attend",
+      "dateSource": "Choose Chicago / ASCO"
+    },
+    {
+      "id": "bio-2027",
+      "name": "BIO International Convention",
+      "start": "2027-06-07",
+      "end": "2027-06-10",
+      "city": "Philadelphia, PA",
+      "focus": ["BD & Partnering", "Biotech", "Policy"],
+      "audience": "Pharma and biotech BD teams, biotech executives, investors, policy makers. Heavy use of the BIO Partnering meeting system.",
+      "url": "https://convention.bio.org/",
+      "dateSource": "convention.bio.org"
+    },
+    {
+      "id": "ada-2027",
+      "name": "ADA Scientific Sessions",
+      "start": "2027-06-18",
+      "end": "2027-06-21",
+      "city": "Washington, DC",
+      "focus": ["Diabetes", "Obesity", "Cardiometabolic"],
+      "audience": "Endocrinologists, diabetes researchers, pharma cardiometabolic teams, medical affairs.",
+      "url": "https://professional.diabetes.org/scientific-sessions",
+      "dateSource": "BioPharma Dive 2027 conference calendar"
+    },
+    {
+      "id": "dia-2027",
+      "name": "DIA Global Annual Meeting",
+      "start": "2027-06-28",
+      "end": "2027-07-01",
+      "city": "San Diego, CA",
+      "focus": ["Regulatory", "Clinical Development", "Pharmacovigilance"],
+      "audience": "Regulatory affairs, clinical operations, safety and quality leaders from industry, plus FDA, EMA and other health authorities.",
+      "url": "https://www.diaglobal.org/Flagship/DIA-2027",
+      "dateSource": "diaglobal.org"
+    },
+    {
+      "id": "esmo-2027",
+      "name": "ESMO Congress",
+      "start": "2027-09-17",
+      "end": "2027-09-21",
+      "city": "Barcelona, Spain",
+      "focus": ["Oncology", "Clinical Data", "European Market"],
+      "audience": "European and global oncologists, pharma oncology and medical affairs teams, HTA and payer stakeholders.",
+      "url": "https://www.esmo.org/meeting-calendar",
+      "dateSource": "BioPharma Dive 2027 conference calendar"
+    }
+  ]
+}

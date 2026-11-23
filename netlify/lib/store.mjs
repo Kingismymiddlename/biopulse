@@ -4,13 +4,17 @@
 const memory = new Map();
 let blobsModule;
 
+// Workspaces and rate limits must be read-your-writes (a save on one device is
+// visible on the next, a delete is final at once); caches can lag.
+const STRONG = new Set(['biopulse-workspaces', 'biopulse-limits']);
+
 async function store(name) {
   if (process.env.BIOPULSE_DISABLE_BLOBS === '1') return null;
   try {
     if (blobsModule === undefined) {
       blobsModule = await import('@netlify/blobs');
     }
-    return blobsModule.getStore({ name, consistency: 'eventual' });
+    return blobsModule.getStore({ name, consistency: STRONG.has(name) ? 'strong' : 'eventual' });
   } catch {
     blobsModule = null;
     return null;

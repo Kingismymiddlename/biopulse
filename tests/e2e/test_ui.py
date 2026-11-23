@@ -348,15 +348,16 @@ def run():
         check("no uncaught errors in failure mode", not [e for e in errors if "status of" not in e], "; ".join(errors[:3]))
         ctx.close()
 
-        # ── 4. GitHub Pages without backend ─────────────────────────────
+        # ── 4. GitHub Pages copy talks to the Netlify backend ───────────
         be = Backend()
         ctx, page, errors = new_page(browser, be)
         page.goto(f"http://kingismymiddlename.github.io:{port}/")
-        page.wait_for_selector("#banner:not([hidden])")
-        check("Pages: banner explains backend setup", "not connected" in page.inner_text("#banner"))
-        page.click("[data-act=onboard] >> nth=0")
-        check("Pages: onboarding refuses honestly", "can't create workspaces" in page.inner_text("#onboard"))
-        check("Pages: no API calls attempted", not be.calls)
+        page.wait_for_selector(".hero h1")
+        page.wait_for_timeout(800)
+        check("Pages: no backend banner", page.is_hidden("#banner"))
+        check("Pages: API calls go to the Netlify site", be.calls and all("helpful-quokka-a6fbcf.netlify.app" in c[2] for c in be.calls), str([c[2] for c in be.calls[:2]]))
+        onboard(page)
+        check("Pages: onboarding creates a workspace", be.count("POST", "workspace") == 1)
         check("Pages: no JS errors", not errors, "; ".join(errors[:3]))
         ctx.close()
 

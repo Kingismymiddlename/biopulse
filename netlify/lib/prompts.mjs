@@ -199,3 +199,70 @@ export function normEventFit(d) {
     targets: arr(d.targets, 4, 80),
   };
 }
+
+// ── Outreach draft ──────────────────────────────────────────────────────────
+export function buildOutreach(input) {
+  const company = clean(input.company, 80);
+  const s = input.signal && typeof input.signal === 'object' ? input.signal : null;
+  if (!company || !s || !clean(s.title, 220)) return { error: 'An account and a signal are required.' };
+  const profile = normProfile(input.profile);
+  const others = (Array.isArray(input.context) ? input.context : [])
+    .slice(0, 3)
+    .map((c, i) => `[${i + 2}] ${clean(c.label, 40)}: ${clean(c.title, 200)} (${clean(c.source, 40)}, ${clean(c.date, 12)})`)
+    .join('\n');
+  const user = `${profileBlock(profile)}
+<data name="account">${company}</data>
+<data name="trigger_signal">
+[1] ${clean(s.label, 40)}: ${clean(s.title, 220)}
+Source: ${clean(s.source, 40)}, ${clean(s.date, 12)}
+Why it can matter to a services buyer (heuristic): ${clean(s.why, 200)}
+</data>
+${others ? `<data name="other_recent_signals">\n${others}\n</data>` : ''}
+
+Write first-touch outreach from the seller above to a senior person at ${company}, triggered by signal [1].
+Rules: name the trigger plainly and factually in the first sentence; do not claim to know internal plans, budgets or results; no flattery, no hype, no em dashes; connect the trigger to ONE specific thing the seller's offering could help with; end with one low-pressure question. Do not invent a recipient name: use "Hi {first name}".
+Return JSON:
+{
+ "subject": "max 8 words, no clickbait",
+ "email": "max 110 words, plain text, line breaks allowed",
+ "linkedin": "max 280 characters connection note",
+ "opener": "one sentence to open a phone call",
+ "angle": "one sentence: the specific need this message bets on",
+ "cites": [signal numbers used]
+}`;
+  return {
+    system: 'You are a senior B2B seller in life sciences services who writes short, specific, credible outreach. ' + GUARD,
+    user,
+    maxTokens: 900,
+    count: 1 + (Array.isArray(input.context) ? Math.min(3, input.context.length) : 0),
+  };
+}
+
+function capWords(text, n) {
+  const words = String(text || '').split(/(\s+)/);
+  let count = 0;
+  let out = '';
+  for (const w of words) {
+    if (/\S/.test(w)) count++;
+    if (count > n) return out.trim() + '…';
+    out += w;
+  }
+  return out.trim();
+}
+
+export function normOutreach(d, count) {
+  const email = String(d.email ?? '')
+    .replace(/\r/g, '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+    .replace(/—/g, ', ')
+    .slice(0, 1200);
+  const li = clean(d.linkedin, 400).replace(/—/g, ', ');
+  return {
+    subject: clean(d.subject, 90).replace(/—/g, ', '),
+    email: capWords(email, 130),
+    linkedin: li.length > 300 ? li.slice(0, 299).replace(/\s+\S*$/, '') + '…' : li,
+    opener: clean(d.opener, 300).replace(/—/g, ', '),
+    angle: clean(d.angle, 300),
+    cites: srcs(d.cites, count || 1),
+  };
+}

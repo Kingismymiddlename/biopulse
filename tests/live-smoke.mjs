@@ -42,3 +42,23 @@ if (process.env.GROQ_API_KEY) {
 } else {
   console.log('SKIP ai (set GROQ_API_KEY to test)');
 }
+
+// ── v3: workspace + signal scoring against live sources ──────────────────────
+{
+  const ws = (await import('../netlify/functions/workspace.mjs')).default;
+  const sig = (await import('../netlify/functions/signals.mjs')).default;
+  const origin = 'http://localhost:8888';
+  const mk = await ws(new Request(origin + '/api/workspace', { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify({ workspace: { accounts: [{ name: 'Pfizer' }] } }) }), { ip: 'smoke' });
+  const created = (await mk.json()).workspace;
+  console.log(mk.status === 201 ? 'OK  ' : 'FAIL', 'workspace create      ', created?.id ? 'id ' + created.id.slice(0, 4) + '…' : '');
+  const accounts = [
+    { id: 'sanofi', name: 'Sanofi' }, { id: 'merck', name: 'Merck & Co.', registryName: 'Merck Sharp & Dohme', aliases: ['Merck', 'MSD'], exclude: ['Merck KGaA'] },
+    { id: 'novo', name: 'Novo Nordisk' }, { id: 'lilly', name: 'Eli Lilly', aliases: ['Lilly'] }, { id: 'az', name: 'AstraZeneca' }, { id: 'pfizer', name: 'Pfizer' },
+  ];
+  const t = Date.now();
+  const r = await sig(new Request(origin + '/api/signals', { method: 'POST', headers: { origin, 'content-type': 'application/json' }, body: JSON.stringify({ accounts }) }), { ip: 'smoke' });
+  const d = await r.json();
+  const fams = new Set(d.results.flatMap((x) => x.signals.map((s) => s.family)));
+  console.log(r.status === 200 && fams.size >= 2 ? 'OK  ' : 'FAIL', 'signals              ', `${Date.now() - t}ms · source families: ${[...fams].join(', ')}`);
+  for (const x of d.results.sort((a, b) => b.score - a.score)) console.log(`     ${String(x.score).padStart(3)} ${x.band.padEnd(5)} ${x.name.padEnd(14)} ${x.signals.filter((s) => s.type !== 'mention').map((s) => s.label).join(', ') || 'no triggers'}`);
+}

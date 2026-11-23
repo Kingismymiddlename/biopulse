@@ -94,7 +94,7 @@ export function parseFeed(xml) {
 // ── Classification ─────────────────────────────────────────────────────────
 const RULES = [
   { tag: 'CRL', re: /\b(complete response letter|CRL|rejects?|rejected|refus(e|al) to file|turns? back|turned back|rebuff(s|ed)?|declines? to approve|spurns?)\b/i },
-  { tag: 'APPROVAL', re: /\b(approv(es|ed|al)|clears?|cleared|green[- ]?light|authori[sz](es|ed))\b/i },
+  { tag: 'APPROVAL', re: /\b(approv(es|ed|al)|clears?|cleared|clearance|green[- ]?light|nod|authori[sz](es|ed|ation))\b/i },
   { tag: 'SAFETY', re: /\b(recall|warning letter|boxed warning|safety (signal|alert)|clinical hold)\b/i },
   { tag: 'M&A', re: /\b(acquir(e|es|ed|ing|ition)|buyout|takeover|merg(e|er|es|ing)|to buy)\b/i },
   { tag: 'FINANCING', re: /\b(raises?|raised|financing|series [a-f]\b|funding round|IPO|public offering|seed round)\b/i },

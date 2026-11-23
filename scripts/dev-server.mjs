@@ -10,7 +10,7 @@ process.env.BIOPULSE_DISABLE_BLOBS ??= '1';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const PORT = Number(process.env.PORT) || 8888;
 const ROUTES = {};
-for (const name of ['ai', 'news', 'trials', 'fda', 'quotes', 'company', 'health']) {
+for (const name of ['ai', 'news', 'trials', 'fda', 'quotes', 'company', 'health', 'workspace', 'signals', 'digest', 'unsubscribe']) {
   ROUTES['/api/' + name] = (await import(`../netlify/functions/${name}.mjs`)).default;
 }
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png' };

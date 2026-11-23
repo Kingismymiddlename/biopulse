@@ -3,14 +3,15 @@ import { json, preflight, corsHeaders, originAllowed, clientIp } from '../lib/ht
 import { generateJSON, AIError } from '../lib/groq.mjs';
 import { cached, rateLimit } from '../lib/store.mjs';
 import {
-  buildDailyBrief, buildProspect, buildEventFit,
-  normDailyBrief, normProspect, normEventFit,
+  buildDailyBrief, buildProspect, buildEventFit, buildOutreach,
+  normDailyBrief, normProspect, normEventFit, normOutreach,
 } from '../lib/prompts.mjs';
 
 const TASKS = {
   dailyBrief: { build: buildDailyBrief, norm: normDailyBrief, ttl: 30 * 60 },
   prospect: { build: buildProspect, norm: normProspect, ttl: 6 * 3600 },
   eventFit: { build: buildEventFit, norm: normEventFit, ttl: 7 * 86400 },
+  outreach: { build: buildOutreach, norm: normOutreach, ttl: 86400 },
 };
 
 const MAX_BODY = 24 * 1024;

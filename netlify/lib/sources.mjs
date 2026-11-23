@@ -126,6 +126,45 @@ export async function sponsorTrials(sponsor) {
   };
 }
 
+/** Trials first posted in the last `days` with this lead sponsor. */
+export async function sponsorNewTrials(sponsor, days = 30, now = new Date()) {
+  const since = isoDay(new Date(now.getTime() - days * 86400000));
+  const qs = new URLSearchParams({
+    'query.term': `AREA[LeadSponsorName]"${sponsor.replace(/"/g, '')}"`,
+    'filter.advanced': `AREA[StudyFirstPostDate]RANGE[${since},MAX]`,
+    countTotal: 'true',
+    pageSize: '50',
+    fields: 'NCTId,BriefTitle,Phase,StudyFirstPostDate,LeadSponsorName',
+    sort: 'StudyFirstPostDate:desc',
+  });
+  // Baseline: the sponsor's own registrations in the 90 days before the window,
+  // so routine activity at big sponsors is not mistaken for a surge.
+  const baseFrom = isoDay(new Date(now.getTime() - (days + 90) * 86400000));
+  const baseTo = isoDay(new Date(now.getTime() - (days + 1) * 86400000));
+  const sponsorQ = `AREA[LeadSponsorName]"${sponsor.replace(/"/g, '')}"`;
+  const range = `AREA[StudyFirstPostDate]RANGE[${baseFrom},${baseTo}]`;
+  const [d, base, baseP3] = await Promise.all([
+    fetchJSON(`${CTG}?${qs}`, { timeoutMs: 7000 }),
+    ctgCount({ 'query.term': sponsorQ, 'filter.advanced': range }).catch(() => null),
+    ctgCount({ 'query.term': `${sponsorQ} AND AREA[Phase]PHASE3`, 'filter.advanced': range }).catch(() => null),
+  ]);
+  const trials = (d.studies || []).map((s) => {
+    const p = s.protocolSection || {};
+    return {
+      nct: p.identificationModule?.nctId,
+      title: p.identificationModule?.briefTitle,
+      phases: p.designModule?.phases || [],
+      posted: p.statusModule?.studyFirstPostDateStruct?.date || null,
+    };
+  });
+  return {
+    since,
+    total: d.totalCount ?? trials.length,
+    trials,
+    baseline: { from: baseFrom, to: baseTo, total: base, phase3: baseP3, perMonth: base == null ? null : base / 3, phase3PerMonth: baseP3 == null ? null : baseP3 / 3 },
+  };
+}
+
 // ── openFDA ────────────────────────────────────────────────────────────────
 const FDA = 'https://api.fda.gov/drug/drugsfda.json';
 
@@ -195,11 +234,11 @@ export function sponsorTokens(name) {
     .filter((t) => t.length >= 2 && !STOP.has(t));
 }
 
-/** FDA approval activity (originals + supplements) for a sponsor over ~2 years. */
-export async function sponsorApprovals(name, now = new Date()) {
+/** FDA approval activity (originals + supplements) for a sponsor over `days` (default ~2 years). */
+export async function sponsorApprovals(name, now = new Date(), days = 730) {
   const tokens = sponsorTokens(name);
   if (!tokens.length) return { matchedSponsors: [], originals: [], supplements: 0 };
-  const from = fdaDate(new Date(now.getTime() - 730 * 86400000));
+  const from = fdaDate(new Date(now.getTime() - days * 86400000));
   const search = `sponsor_name:${tokens[0]}*+AND+submissions.submission_status_date:[${from}+TO+${fdaDate(now)}]+AND+(application_number:NDA*+OR+application_number:BLA*)`;
   let d;
   try {

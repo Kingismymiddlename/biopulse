@@ -82,3 +82,38 @@ export async function rateLimit(bucket, limit, windowSeconds) {
 export function _resetMemoryForTests() {
   memory.clear();
 }
+
+// ── Named-store primitives (workspaces) ─────────────────────────────────────
+export async function getItem(storeName, key) {
+  return readJSON(storeName, key);
+}
+
+export async function setItem(storeName, key, value) {
+  return writeJSON(storeName, key, value);
+}
+
+export async function deleteItem(storeName, key) {
+  memory.delete(storeName + ':' + key);
+  const s = await store(storeName);
+  if (s) {
+    try {
+      await s.delete(key);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+export async function listKeys(storeName) {
+  const s = await store(storeName);
+  if (s) {
+    try {
+      const { blobs } = await s.list();
+      return blobs.map((b) => b.key);
+    } catch {
+      /* fall through to memory */
+    }
+  }
+  const prefix = storeName + ':';
+  return [...memory.keys()].filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length));
+}

@@ -45,7 +45,7 @@ export function corsHeaders(req, { publicData = false } = {}) {
   if (origin && originAllowed(req)) {
     return {
       'Access-Control-Allow-Origin': origin,
-      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, GET, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400',
       Vary: 'Origin',

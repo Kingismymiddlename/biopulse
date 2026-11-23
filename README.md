@@ -1,109 +1,88 @@
 # BioPulse
 
-**Live life sciences market intelligence.** One screen that shows where clinical development is moving, what the FDA just approved, which deals were announced, and what the trade press is saying. It also writes sourced AI briefs on the day's news and on any pharma or biotech account.
+**Know which accounts to call this week, and why.** BioPulse is a free account-signal tool for sellers at life sciences data, AI and IT services firms. It reads FDA, ClinicalTrials.gov and 8 trade feeds for each of your pharma and biotech accounts. It scores what changed and drafts a sourced first message.
 
-Live: https://kingismymiddlename.github.io/biopulse/ (front end) · backend on Netlify
+![BioPulse This week screen, live data, 23 Nov 2026](docs/screenshot.png)
 
-![BioPulse dashboard](docs/screenshot.png)
+Product requirements: [docs/PRD.md](docs/PRD.md) (living version linked inside).
 
 ## What it does
 
-| Panel | What you see | Source |
-|---|---|---|
-| Recruiting trials map | Recruiting trials in 40 countries, shaded on a log scale | ClinicalTrials.gov API v2 |
-| Pipeline heat | New trials posted in the last 7 days and recruiting trials, by therapy area | ClinicalTrials.gov API v2 |
-| FDA approvals | Novel NDA/BLA approvals in the last 60 days, with priority review flag and a link to Drugs@FDA | openFDA |
-| Intel feed | 8 trade and regulator feeds, de-duplicated, tagged (approval, CRL, M&A, financing, Phase 3, policy…), searchable, filterable | FDA, STAT, BioPharma Dive, PharmaVoice, GEN, Pharmaceutical Technology, Drug Discovery & Development, Labiotech.eu |
-| Deal signals and deal radar | Headlines from the last 7 days with a disclosed deal value, ranked by size | Parsed from the feed |
-| Biotech markets | XBI, IBB, Nasdaq Biotech Index and a configurable ticker list (delayed) | Yahoo Finance, with Stooq as fallback |
-| Daily brief (AI) | Lead story, 3 themes, watchlist notes and 2 opportunities for your firm. Every point cites the headline it came from | Groq, run on the server |
-| Account brief (AI) | Lead-sponsor trial portfolio, phase mix, top conditions, FDA approvals over 24 months, matching headlines, then a pre-call brief with discovery questions and a pitch angle. Exports to Markdown | ClinicalTrials.gov, openFDA, feed, Groq |
-| Event planner | 12 major 2027 life sciences conferences with checked dates, plus an AI go/watch/skip fit score against your firm profile | Curated list in `data/conferences.json`, Groq |
+| Screen | What you get |
+|---|---|
+| **This week** | Your accounts ranked by a 0 to 100 signal score, the top triggers for each with source links, "new since last visit" badges, filters by signal family, a pipeline count, strong signals from companies not on your list, and events coming up |
+| **Account panel** | Why the score is what it is (every signal and its points), thumbs up or down per signal, a one-click outreach draft (email, LinkedIn note, call opener) grounded in one trigger, a pre-call brief from the live trial portfolio and 24 months of FDA history, matching settings and stage history |
+| **Accounts** | Add one, paste a list, or start from packs (large pharma, obesity and cardiometabolic, cell and gene therapy, CROs). Stage per account: Monitoring, Contacted, Meeting, Opportunity, Not a fit. CSV export |
+| **Market** | Recruiting trials by country, new trials by therapy area, novel FDA approvals, deal radar, the full news feed (with a "My accounts" filter) and biotech quotes |
+| **Events** | 12 major 2027 life sciences conferences with checked dates, and an AI go, watch or skip fit score against your firm profile |
+| **Weekly digest** | A Monday email (about 07:00 IST) listing accounts with new signals since the last one. One-click unsubscribe, no tracking |
 
-Every panel shows its source, when it was last updated, and whether it is live, a saved copy, or unavailable. Nothing is invented: if a source is down, the panel says so.
+**Signals.** 14 trigger types, each with a weight and a reason it matters to a services buyer: leadership change, acquisition (buyer or target), FDA approval, FDA rejection, financing, AI initiative, pivotal readout, new Phase 3 trials, trial surge, restructuring, safety action, partnership and Phase 2 readout. Plain news mentions count as context only. Scores decay by half every 14 days. Registry signals compare each sponsor with its own previous 90 days, so routine activity at big companies is not mistaken for a surge. The full model is in the PRD.
 
-## Architecture
+**Honest by default.** No placeholder data. Every signal links to its source. Every panel says when a source is down and shows the last good copy with its age. AI text is labelled as AI. Scores are labelled as heuristics.
+
+## How it works
 
 ```
-Browser (index.html + assets/app.js, no build step)
+Browser (static site, ES modules, no build step)
    │  fetch /api/*
    ▼
-Netlify Functions (netlify/functions/*.mjs)
-   ├─ /api/news      8 RSS feeds → parse, tag, de-dupe, extract deals    CDN cache 10 min
-   ├─ /api/trials    ClinicalTrials.gov counts by area / country          CDN cache 3 h
-   ├─ /api/fda       openFDA recent novel approvals                       CDN cache 3 h
-   ├─ /api/quotes    Yahoo Finance → Stooq fallback                       CDN cache 5 min
-   ├─ /api/company   sponsor trial portfolio + FDA history                CDN cache 6 h
-   ├─ /api/ai        Groq (server-side key, fixed prompt templates,
-   │                 per-IP and daily limits, answer cache)
-   └─ /api/health    is the AI key configured?
-Netlify Blobs: last good copy of every source (served if an upstream goes down), rate-limit counters, AI answer cache.
+Netlify Functions
+   ├─ /api/workspace   create, read, save, delete a private workspace (no passwords)
+   ├─ /api/signals     score up to 10 accounts per call: news + openFDA + ClinicalTrials.gov
+   ├─ /api/ai          Groq, server-side key, fixed prompt templates (outreach, brief, event fit)
+   ├─ /api/digest      send a test digest now (Resend)
+   ├─ /api/unsubscribe one-click digest opt-out
+   ├─ digest-weekly    scheduled: Mondays, hourly 01:30 to 06:30 UTC
+   └─ /api/news · trials · fda · quotes · company · health
+Netlify Blobs: workspaces, cached source data (last good copy), rate limits, AI answer cache
 ```
 
-Why a backend: the Groq key must never be in the page (anyone can read it). The backend also replaces the free CORS proxy the first version relied on, which was failing and was the reason the old site showed placeholder news and prices.
+**Workspaces** are identified by a random 128-bit ID that lives in the URL hash (`#/week?w=…`). Anyone with the link can open the workspace, so treat it like a password. The ID never appears in a query string or a `Referer` header.
 
-The AI endpoint only accepts three task types (`dailyBrief`, `prospect`, `eventFit`) and builds the prompts itself, so nobody can use your key as a free general-purpose LLM.
+**AI** uses Groq `openai/gpt-oss-120b`, with `openai/gpt-oss-20b` as a fallback. The browser sends only task inputs, never prompts. Requests are limited to 40 per IP per hour and 800 per day site-wide.
 
-## Deploy (about 10 minutes)
+## Deploy
 
-### 1. Create the Netlify site
-1. Log in at [app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project → GitHub** → pick `Kingismymiddlename/biopulse`.
-2. Branch to deploy: `main`. Leave **Build command** empty and **Publish directory** as `.`. Netlify reads `netlify.toml` and picks up the functions automatically.
-3. Click **Deploy**. Note the site URL, e.g. `https://biopulse-xyz.netlify.app` (you can rename it under **Site configuration → Change site name**).
+See **Owner actions** in [docs/PRD.md](docs/PRD.md#owner-actions) for the step-by-step version. In short:
 
-### 2. Add your Groq key
-1. Netlify → your site → **Site configuration → Environment variables → Add a variable**.
-2. Key: `GROQ_API_KEY`, value: your new `gsk_...` key. Scope: Functions.
-3. **Deploys → Trigger deploy → Deploy site** (environment variables apply on the next deploy).
-4. Check: open `https://<your-site>.netlify.app/api/health`. It should show `"configured": true`.
+1. Netlify → Add new site → Import from GitHub → this repo, branch `main`. Leave the build command empty and set the publish directory to `.`.
+2. Site configuration → Environment variables:
 
-Never paste the key into any file in this repo.
+| Variable | Required | Purpose |
+|---|---|---|
+| `GROQ_API_KEY` | yes, for AI | Groq key (`gsk_...`) |
+| `RESEND_API_KEY` | yes, for the digest | Resend key (`re_...`) |
+| `DIGEST_FROM` | no | Sender, e.g. `BioPulse <digest@yourdomain.com>`. Default `BioPulse <onboarding@resend.dev>` delivers only to the Resend account owner's address |
+| `OPENFDA_API_KEY` | recommended | Raises openFDA's 1,000 calls/day limit; free at open.fda.gov |
+| `PUBLIC_APP_URL` | no | Base URL used in email links (defaults to the Netlify site URL) |
+| `GROQ_MODEL`, `GROQ_FALLBACK_MODEL` | no | Override the models |
+| `AI_HOURLY_LIMIT_PER_IP`, `AI_DAILY_LIMIT` | no | Defaults 40 and 800 |
+| `ALLOWED_ORIGINS` | no | Extra origins allowed to call the write APIs (GitHub Pages is allowed by default) |
 
-### 3. Point GitHub Pages at the backend (optional)
-The Netlify URL is a complete site on its own. To keep `kingismymiddlename.github.io/biopulse` working as well, edit `assets/config.js`:
-
-```js
-window.BIOPULSE_CONFIG = { apiBase: 'https://<your-site>.netlify.app' };
-```
-
-Commit to `main`. The `kingismymiddlename.github.io` origin is already allowed. For any other domain, add it to the `ALLOWED_ORIGINS` environment variable (comma-separated).
-
-### Environment variables
-
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `GROQ_API_KEY` | yes, for AI | none | Groq key, read only by the functions |
-| `GROQ_MODEL` | no | `openai/gpt-oss-120b` | Primary model |
-| `GROQ_FALLBACK_MODEL` | no | `openai/gpt-oss-20b` | Used if the primary model is unavailable |
-| `AI_HOURLY_LIMIT_PER_IP` | no | `40` | AI calls per visitor IP per hour |
-| `AI_DAILY_LIMIT` | no | `800` | AI calls per day for the whole site (protects your Groq quota) |
-| `ALLOWED_ORIGINS` | no | GitHub Pages origin + this Netlify site | Extra origins allowed to call `/api/ai` |
-| `OPENFDA_API_KEY` | no | none | Raises openFDA rate limits (free at open.fda.gov) |
-
-Groq retired `llama-3.3-70b-versatile` (the model v1 used) on 16 Aug 2026. To change models later, set `GROQ_MODEL`; no code change needed.
+3. Trigger a deploy, then open `/api/health`. It should show AI and email as configured.
+4. Optional: to keep GitHub Pages working, set `apiBase` in `assets/config.js` to the Netlify URL.
 
 ## Run locally
 
 ```bash
 npm install
-GROQ_API_KEY=gsk_... node scripts/dev-server.mjs   # http://localhost:8888
+GROQ_API_KEY=gsk_... RESEND_API_KEY=re_... node scripts/dev-server.mjs   # http://localhost:8888
 ```
-`netlify dev` also works if you have the Netlify CLI.
 
 ## Tests
 
 ```bash
-npm test                          # 38 unit tests: parsers, prompts, Groq client, every function (network mocked)
-python3 tests/e2e/test_ui.py      # 63 browser checks: desktop, tablet, mobile, XSS, failure modes, GitHub Pages mode
-node tests/live-smoke.mjs         # hits the real upstream APIs (add GROQ_API_KEY to include AI)
+npm test                        # 59 unit tests: scoring model, matching, classification, workspaces, digest, every endpoint
+python3 tests/e2e/test_ui.py    # 74 browser checks: onboarding, ranking, outreach, stages, demo, failures, GitHub Pages mode,
+                                #   XSS, mobile and tablet layouts, labels
+node tests/live-smoke.mjs       # real sources: feeds, ClinicalTrials.gov, openFDA, quotes, workspace + live scoring
 ```
 
-## Limits and honest caveats
-- **Deal values** come from headlines, so only deals with a dollar figure in the headline or summary appear. "Up to" figures include milestones.
-- **Therapy areas** are keyword searches on conditions, so a trial can count in more than one area.
-- **Country counts** are recruiting trials with at least one site in that country. Multinational trials count in every country they recruit in.
-- **openFDA** can lag FDA announcements by a few days.
-- **Quotes** are delayed and for context only. Not investment advice.
-- **AI text** is generated from the data shown and labelled as AI. Background facts in account briefs come from model knowledge and are flagged as possibly outdated.
-- Fierce Pharma, Fierce Biotech and Endpoints block server-side feed readers, so they are not included.
-- Conference dates in `data/conferences.json` were checked on 23 Nov 2026. Update the file each year.
+## Limits
+- Scores are heuristics and should be read as "worth a look", not as a forecast.
+- News signals depend on an account being named in a headline; set aliases and the registry name for best matching.
+- Deal values come only from headlines that state a dollar figure.
+- openFDA can lag FDA announcements by a few days.
+- Fierce Pharma, Fierce Biotech and Endpoints block server-side feed readers and are not included.
+- Conference dates in `data/conferences.json` were checked on 23 Nov 2026. Update the file yearly.

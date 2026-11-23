@@ -1,0 +1,77 @@
+{
+  "note": "Registry names are the lead-sponsor names used on ClinicalTrials.gov. Aliases and exclusions tune headline matching.",
+  "packs": [
+    {
+      "id": "big-pharma",
+      "name": "Large pharma (20)",
+      "accounts": [
+        { "name": "Pfizer" },
+        { "name": "Johnson & Johnson", "registryName": "Janssen", "aliases": ["J&J", "Janssen"] },
+        { "name": "Roche", "registryName": "Hoffmann-La Roche", "aliases": ["Genentech"] },
+        { "name": "Merck & Co.", "registryName": "Merck Sharp & Dohme", "aliases": ["Merck", "MSD"], "exclude": ["Merck KGaA"] },
+        { "name": "AbbVie" },
+        { "name": "AstraZeneca" },
+        { "name": "Novartis" },
+        { "name": "Bristol Myers Squibb", "registryName": "Bristol-Myers Squibb", "aliases": ["BMS", "Bristol-Myers Squibb"] },
+        { "name": "Eli Lilly", "aliases": ["Lilly"] },
+        { "name": "Sanofi" },
+        { "name": "Novo Nordisk" },
+        { "name": "GSK", "registryName": "GlaxoSmithKline", "aliases": ["GlaxoSmithKline"] },
+        { "name": "Amgen" },
+        { "name": "Gilead Sciences", "aliases": ["Gilead"] },
+        { "name": "Takeda" },
+        { "name": "Bayer" },
+        { "name": "Boehringer Ingelheim", "aliases": ["Boehringer"] },
+        { "name": "Regeneron", "registryName": "Regeneron Pharmaceuticals" },
+        { "name": "Vertex Pharmaceuticals", "registryName": "Vertex Pharmaceuticals Incorporated", "aliases": ["Vertex"], "exclude": ["Vertex AI"] },
+        { "name": "Biogen" }
+      ]
+    },
+    {
+      "id": "cardiometabolic",
+      "name": "Obesity & cardiometabolic (10)",
+      "accounts": [
+        { "name": "Novo Nordisk" },
+        { "name": "Eli Lilly", "aliases": ["Lilly"] },
+        { "name": "Amgen" },
+        { "name": "AstraZeneca" },
+        { "name": "Boehringer Ingelheim", "aliases": ["Boehringer"] },
+        { "name": "Roche", "registryName": "Hoffmann-La Roche", "aliases": ["Genentech"] },
+        { "name": "Pfizer" },
+        { "name": "Structure Therapeutics" },
+        { "name": "Viking Therapeutics", "aliases": ["Viking"] },
+        { "name": "Zealand Pharma", "aliases": ["Zealand"] }
+      ]
+    },
+    {
+      "id": "cell-gene",
+      "name": "Cell & gene therapy (10)",
+      "accounts": [
+        { "name": "Vertex Pharmaceuticals", "registryName": "Vertex Pharmaceuticals Incorporated", "aliases": ["Vertex"], "exclude": ["Vertex AI"] },
+        { "name": "Sarepta Therapeutics", "aliases": ["Sarepta"] },
+        { "name": "CRISPR Therapeutics", "aliases": ["CRISPR Tx"] },
+        { "name": "Intellia Therapeutics", "aliases": ["Intellia"] },
+        { "name": "BioMarin", "registryName": "BioMarin Pharmaceutical" },
+        { "name": "Ultragenyx", "registryName": "Ultragenyx Pharmaceutical Inc" },
+        { "name": "Rocket Pharmaceuticals", "aliases": ["Rocket Pharma"] },
+        { "name": "Beam Therapeutics", "aliases": ["Beam"] },
+        { "name": "Legend Biotech", "aliases": ["Legend"] },
+        { "name": "Capricor Therapeutics", "aliases": ["Capricor"] }
+      ]
+    },
+    {
+      "id": "cros",
+      "name": "CROs & services (8)",
+      "accounts": [
+        { "name": "IQVIA" },
+        { "name": "ICON plc", "aliases": ["ICON"] },
+        { "name": "Parexel" },
+        { "name": "Thermo Fisher Scientific", "aliases": ["Thermo Fisher", "PPD"] },
+        { "name": "Syneos Health", "aliases": ["Syneos"] },
+        { "name": "Medpace" },
+        { "name": "Fortrea" },
+        { "name": "Labcorp" }
+      ]
+    }
+  ]
+}
